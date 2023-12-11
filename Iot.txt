@@ -1,0 +1,96 @@
+﻿Practical 3
+Aim:Displaying Time over 4-Digit 7-Segment Display using Raspberry Pi
+Additional Hardware requires:
+.TM1637 4-digit seven segment Display board .Jumper wires
+Pins connection
+| TM1637 Pin | Name | Remarks     | RPi Pin | RPi Function BCM     
+|----------:|:-----|:------------|--------:|-------------------
+| 1     	     | GND  | Ground        | 6          | GND               
+| 2            | VCC  | +5V Power   | 2          | 5V        
+| 3            | DIN  | Data In        | 38         | GPIO 20           
+| 4            | CLK  | Clock           | 40         | GPIO 21           
+Libraries needed:
+tm1637.py is a driver library. Download and save it in same folder as your code.
+Write following code in Python 2 IDLE save it as 'clock.py'
+From time import sleep import tm1637
+Display = tm1637.TM1637(CLK=21, DIO=20, brightness=1.0) print "Starting clock in the background (press CTRL + C to stop):"Display.StartClock() sleep(5)Display.StopClock()
+Practical 4
+Aim:Controlling Raspberry Pi with Telegram.
+Write the following code in Pyhton 2 IDLE and save it as 'mybot.py'
+import time ,import telepot,import RPi.GPIO as GPIO,GPIO.setmode(GPIO.BOARD)
+GPIO.setup(11, GPIO.OUT),def handle(msg):,  chat_id = msg['chat']['id'],  command = msg['text']
+ print 'Got command:', command, if command == 'on':,  bot.sendMessage(chat_id, "LED on")
+  GPIO.output(11,GPIO.HIGH),elif command =='off':,bot.sendMessage(chat_id, "LED off")
+  GPIO.output(11,GPIO.LOW), elif command == 'stop':   exit() ,try:  bot = telepot.Bot('Bot Token')
+  bot.message_loop(handle)print 'I am listening...'  while 1: ,time.sleep(10)
+except Exception:print 'something wrong '
+Practical 6
+Aim: Visitor Monitoring with Raspberry Pi and Pi Camera
+Additional Hardware Required:
+Pi camera  ,DC Motor ,IC L293D  ,Bread Board  ,Resistor (1k,10k)  ,Push Button  ,Jumper wires  (adapter)
+Connections:1: connect Pi camera to Raspberry Pi by removing case like following: (pull out slot , Insert camera in , Press slot again properly) 
+Software configuration:1.install Pi camera library files 
+$ sudo apt-get install python-picamera $ sudo apt-get install python3-picamera 
+2. Configuration Tool (raspi-config): $ sudo raspi-config 
+3. Then select Enable camera and Enable it. 
+4. reboot Raspberry Pi $ sudo reboot 
+Write following code in Python 3 IDLE and save it as 'MyCamera.py'
+from time import sleep ,from picamera import PiCamera ,camera = PiCamera() ,camera.resolution = (1280, 720) , camera.start_preview()  ,sleep(2) ,camera.capture('/home/pi/Pictures/newImage.jpg')
+camera.stop_preview() 
+       Practical 9
+Aim: Interfacing GPS Module with RaspberryPi 1) Hardware required Neo 6m v2 GPS Module and USB to TTL , 2) Connections ,GPS USB to TTL ,VCC 5v ,GND GND ,Tx Rx
+3) Enable Serial interface from configuration.
+4) Write following code in Python 2: import serial , ser = serial.Serial("/dev/ttyUSB0", baudrate = 9600)
+while 1:try:data = ser.readline() , except: print("loading") ,if data[0:6] == '$GPGGA': ,print data
+
+
+
+Practical 7
+Aim: Interfacing Raspberry Pi with RFID.
+Additional Hardware Required:
+1. EM-18 RFID Reader Module 
+2. USB-To-TTL converter
+3. Few RFID Cards or RFID Tags 
+4. 5V external Power Supply for RFID Reader
+5. Jumper Wires 
+
+Connections:
+1: connect Tx pin of RFID module to Rx pin of USB-to-TTL converter.
+2: connect GND (not the centre one) pin of RFID module to GND pin of USB-to-TTL converter.
+3: connect positive pin (down side) of RFID module to External +5v pin of adapter.
+4: connect negative pin (down side) of RFID module to External +5v pin of adapter.
+5: Finally connect USB-to-TTL converter into USB port of raspberry pi.
+Software configurations:
+Setting up Raspberry Pi for Serial Communication 
+sudo raspi-config 
+In the "Interfacing Options", select the "Serial" option. 
+Select "Yes" option. 
+Finish the process and Reboot the Raspberry Pi. 
+To check your USB port number use following command:
+ls /dev/ttyUSB*
+In following code it is ttyUSB0
+Write the following code in Python 2 IDLE and save it as 'rfid.py'
+import time , import serial , data=serial.Serial(port='/dev/ttyUSB0',baudrate=9600)
+try: while 1:  print "Place the card",  x=data.read(12),   print(x ,   if x=="1C00377ACC9D" ,  print "Access Granted" ,  else: print "Access Denied"except KeyboardInterrupt:   data.close()
+Practical 1
+Aim: Starting Raspbian OS
+Steps to make bootable SD card for Raspberry Pi (raspbian stretch)
+1: Get raspbian OS on your micro SD card:
+1. Download raspbian from raspberrpi.org and click download and then click on Raspbian (select Raspbian Strech with desktop file.) mostly as zip file.
+2. Unzip file to find a disc image. , Format new SD card using SD Formatter tool.
+3. You need to install Win32DiskImager tool to write image to SD card.
+4. In Win32DiskImager tool select image file and click Write button.
+5. Once it is written your card name will change into boot.
+6. Now can insert this card in your Raspberry Pi.
+Practical 2
+Aim: Displaying different LED patterns with Raspberry Pi. 
+Additional Hardware required: , Resistors , LEDs , Jumper wires , BreadboardConnections:Connect LEDs on breadboard , Connect resistor to one end of led (to Positive end or anode). 
+Write following code in Python IDLE 3 save it as 'pattern.py'
+import RPi.GPIO as GPIO , from time import sleep , GPIO.setmode(GPIO.BOARD) , led1=29 , led2=31 led3=33 , led4=35 , GPIO.setup(led1,GPIO.OUT) , GPIO.setup(led2,GPIO.OUT)
+GPIO.setup(led3,GPIO.OUT) , GPIO.setup(led4,GPIO.OUT) ,GPIO.output(led1,False)
+GPIO.output(led2,False) , GPIO.output(led3,False) , GPIO.output(led4,False) ,def ledpattern(v1,v2,v3,v4):GPIO.output(led1,v1) , GPIO.output(led2,v2) , GPIO.output(led3,v3)
+GPIO.output(led4,v4 , try: , while True: , ledpattern(1,1,1,1) , time.sleep(0.5) , ledpattern(0,0,0,0)
+time.sleep(0.5) ,  finally: GPIO.cleanup()
+
+
+

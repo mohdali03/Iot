@@ -1,0 +1,729 @@
+PRACTICAL NO :- 1
+Aim :- Displaying different LED patterns with Raspberry Pi.
+General Diagram:
+
+SOLUTION:
+import RPi.GPIO as GPIO
+import time
+SOLUTION:
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(20,GPIO.OUT)
+while True:
+GPIO.output(21,1)
+time.sleep(0.2)
+GPIO.output(21,0)
+time.sleep(0.2)
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+1
+
+Use GPIO 20 & GPIO 21
+NOTE : IN THE PRACTICAL BOARD LEDS ARE CONNECTED TO GPIO
+20 &
+GPIO 21.
+SOLUTION:
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(20,GPIO.OUT)
+GPIO.setup(21,GPIO.OUT)
+while True:
+GPIO.output(20,1)
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+2
+
+time.sleep(0.2)
+GPIO.output(20,0)
+time.sleep(0.2)
+GPIO.output(21,1)
+time.sleep(0.2)
+GPIO.output(21,0)
+time.sleep(0.2)
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+3
+
+PRACTICAL NO :- 2
+Aim :- Visitor Monitoring with Raspberry Pi
+#!/usr/bin/env python
+import RPi.GPIO as GPIO
+import time
+SDI = 4
+RCLK = 27
+SRCLK = 24
+Switch=19
+def print_msg():
+print 'Program is running...'
+print 'Please press Ctrl+C to end the program...'
+def setup():
+GPIO.setmode(GPIO.BCM) # Number GPIOs by its BCM location
+GPIO.setup(SDI, GPIO.OUT)
+GPIO.setup(RCLK, GPIO.OUT)
+GPIO.setup(SRCLK, GPIO.OUT)
+GPIO.setup(19,GPIO.IN)
+GPIO.output(SDI, GPIO.LOW)
+GPIO.output(RCLK, GPIO.LOW)
+GPIO.output(SRCLK, GPIO.LOW)
+# Shift the data to 74HC595
+def hc595_in(dat):
+for bit in range(0, 8):
+GPIO.output(SDI,(1 & (dat >> bit)))
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+4
+
+GPIO.output(SRCLK, GPIO.HIGH)
+time.sleep(0.000001)
+GPIO.output(SRCLK, GPIO.LOW)
+def hc595_out():
+GPIO.output(RCLK, GPIO.HIGH)
+time.sleep(0.000001)
+GPIO.output(RCLK, GPIO.LOW)
+def main():
+i=0
+hc595_in(i)
+hc595_out()
+i=1
+while True:
+reading = GPIO.input(19) # check for Visitor Switch Pressed
+if reading == 0:
+print str(i)+" Visitors Inside Auditorium"
+hc595_in(i)
+hc595_out()
+i=i+1
+if i>15 :
+print "Auditorium....Full"
+break
+else:
+time.sleep(1)
+def destroy():
+GPIO.cleanup()
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+5
+
+if __name__ == '__main__':
+setup()
+try:
+main()
+except KeyboardInterrupt:
+destroy()
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+6
+
+PRACTICAL NO :- 3
+Aim :- Displaying Time over 4-Digit 7-Segment Display
+using
+
+#!/usr/bin/env python
+# -*- coding: utf-8 -*from time import sleep
+import tm1637py18
+try:
+import thread
+except ImportError:
+import _thread as thread
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+7
+
+# Initialize the clock (GND, VCC=3.3V, Example Pins are DIO-20 and
+CLK21)
+Display = tm1637py18.TM1637(CLK=5, DIO=6, brightness=1.0)
+try:
+print "Starting clock in the background (press CTRL + C to stop):"
+Display.StartClock(military_time=False)
+print 'Continue Python script and tweak Display!'
+sleep(5)
+Display.ShowDoublepoint(False)
+sleep(5)
+loops = 3
+# while loops > 0:
+# for i in range(0, 10):
+# Display.SetBrightness(i / 10.0)
+# sleep(0.5)
+# loops -= 1
+# Display.StopClock()
+# thread.interrupt_main()
+except KeyboardInterrupt:
+print "Properly closing the clock and open GPIO pins"
+Display.cleanup()
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+8
+
+PRACTICAL NO :- 4
+Aim :- IoT based Web Controlled Home Automation using
+Raspberry Pi
+from bottle import route, run
+import RPi.GPIO as GPIO
+# change ip addrss of pi use ifconfig
+host = '192.168.0.101'
+GPIO.setmode(GPIO.BCM)
+led_pins = [20, 21]
+led_states = [0, 0]
+switch_pin = 19
+GPIO.setup(led_pins[0], GPIO.OUT)
+GPIO.setup(led_pins[1], GPIO.OUT)
+GPIO.setup(switch_pin, GPIO.IN )
+def switch_status():
+state = GPIO.input(switch_pin)
+if state:
+return 'Up'
+else:
+return 'Down'
+def html_for_led(led):
+l = str(led)
+result = " <input type='button' onClick='changed(" + l + ")'
+value='LED " + l + "'/>"
+return result
+def update_leds():
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+9
+
+for i, value in enumerate(led_states):
+GPIO.output(led_pins[i], value)
+@route('/')
+@route('/<led>')
+def index(led="n"):
+print(led)
+if led != "n":
+led_num = int(led)
+led_states[led_num] = not led_states[led_num]
+update_leds()
+response = "<script>"
+response += "function changed(led)"
+response += "{"
+response += " window.location.href='/' + led"
+response += "}"
+response += "</script>"
+response += '<h1>GPIO Control</h1>'
+response += '<h2>FIRST KEY-Button Status=' + switch_status() +
+'</h2>'
+response += '<h2>LEDs</h2>'
+response += html_for_led(0)
+response += html_for_led(1)
+return response
+run(host=host, port=80)
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+10
+
+PRACTICAL NO :- 5
+Aim :- Fingerprint Sensor interfacing with Raspberry Pi
+
+# fingerprint_scanner.py - learn and recognize fingerprints with
+GT-511C3
+#
+import time
+import serial
+import struct
+STX1 = 0x55 # <1>
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+11
+
+STX2 = 0xAA
+CMD_OPEN = 0x01 # <2>
+CMD_CLOSE = 0x02
+CMD_LED = 0x12
+CMD_GET_ENROLL_COUNT = 0x20
+CMD_ENROLL_START = 0x22
+CMD_ENROLL_1 = 0x23
+CMD_ENROLL_2 = 0x24
+CMD_ENROLL_3 = 0x25
+CMD_IS_FINGER_PRESSED = 0x26
+CMD_DELETE_ALL = 0x41
+CMD_IDENTIFY = 0x51
+CMD_CAPTURE_FINGER = 0x60
+ACK = 0x30 # <3>
+NACK = 0x31
+port = None
+def calcChecksum(package): # <4>
+checksum = 0
+for byte in package:
+checksum += ord(byte)
+return int(checksum)
+def sendCmd(cmd, param = 0): # <5>
+package = chr(STX1)+chr(STX2)+struct.pack('<hih', 1, param, cmd)
+# <6>
+checksum = calcChecksum(package)
+package += struct.pack('<h',checksum) # <7>
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+12
+
+sent = port.write(package)
+if(sent != len(package)):
+print "Error communicating"
+return -1
+recv = port.read(sent) # <8>
+recvPkg = struct.unpack('cchihh',recv) # <9>
+if recvPkg[4] == NACK:
+print("error: %s" % recvPkg[3])
+return -2
+time.sleep(1)
+return recvPkg[3]
+def startScanner():
+print("Open scanner communications")
+sendCmd(CMD_OPEN)
+def stopScanner():
+print("Close scanner communications")
+sendCmd(CMD_CLOSE)
+def led(status = True):
+if status:
+sendCmd(CMD_LED,1)
+else:
+sendCmd(CMD_LED,0)
+def enrollFail():
+print("Enroll failed")
+print("YOU r already Enrolled your no is error no")
+led(False)
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+13
+
+stopScanner()
+def identFail():
+print("Ident failed")
+led(False)
+stopScanner()
+def startEnroll(ident):
+sendCmd(CMD_ENROLL_START,ident)
+def waitForFinger(state):
+if(state):
+while(sendCmd(CMD_IS_FINGER_PRESSED) == 0):
+time.sleep(0.1)
+else:
+while(sendCmd(CMD_IS_FINGER_PRESSED) > 0):
+time.sleep(0.1)
+def captureFinger():
+return sendCmd(CMD_CAPTURE_FINGER)
+def enroll(state):
+if state == 1:
+return sendCmd(CMD_ENROLL_1)
+if state == 2:
+return sendCmd(CMD_ENROLL_2)
+if state == 3:
+return sendCmd(CMD_ENROLL_3)
+def identifyUser():
+return sendCmd(CMD_IDENTIFY)
+def getEnrollCount():
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+14
+
+return sendCmd(CMD_GET_ENROLL_COUNT)
+def removeAll():
+return sendCmd(CMD_DELETE_ALL)
+def main():
+print("Remove all identities from scanner")
+startScanner()
+# removeAll()
+led()
+print("Start enroll")
+newID = getEnrollCount()
+print(newID)
+startEnroll(newID)
+print("Press finger to start enroll")
+waitForFinger(False)
+if captureFinger() < 0:
+enrollFail()
+return
+enroll(1)
+print("Remove finger")
+waitForFinger(True)
+print("Press finger again")
+waitForFinger(False)
+if captureFinger() < 0:
+enrollFail()
+return
+enroll(2)
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+15
+
+print("Remove finger")
+waitForFinger(True)
+print("Press finger again")
+waitForFinger(False)
+if captureFinger() < 0:
+enrollFail()
+return
+if enroll(3) != 0:
+enrollFail()
+return
+print("Remove finger")
+waitForFinger(True)
+print("Press finger again to identify")
+waitForFinger(False)
+if captureFinger() < 0: # <10>
+identFail()
+return
+ident = identifyUser()
+if(ident >= 0 and ident < 200): # <11>
+print("Identity found: %d" % ident)
+else:
+print("User not found")
+led(False)
+stopScanner()
+if __name__ == "__main__":
+try:
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+16
+
+if port == None:
+port = serial.Serial(
+"/dev/ttyUSB0",
+baudrate=9600,
+timeout=None) # <12>
+main()
+except Exception, e:
+print e
+port.close()
+finally:
+port.close()
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+17
+
+PRACTICAL NO :- 6
+Aim :- Building Google Assistant with Raspberry Pi.
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+18
+
+import RPi.GPIO as GPIO
+import time
+buzzer_pin=13
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(13,GPIO.OUT)
+def buzz(pitch,duration):
+period=1.0/pitch
+delay=period/2
+cycles=int(duration*pitch)
+for i in range(cycles):
+GPIO.output(buzzer_pin,True)
+time.sleep(delay)
+GPIO.output(buzzer_pin,False)
+time.sleep(delay)
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+19
+
+while True:
+pitch_s=raw_input("Enter Pitch between (200 to 2000): ")
+pitch=float(pitch_s)
+duration_s=raw_input("Enter Duration in Seconds: ")
+duration=float(duration_s)
+buzz(pitch,duration)
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+20
+
+PRACTICAL NO :- 7
+Aim :- Raspberry Pi Based Oscilloscope
+# Simple demo of reading each analog input from the ADS1x15 and
+printing it to
+# the screen.
+import time
+# Import the ADS1x15 module.
+import Adafruit_ADS1x15
+# Create an ADS1115 ADC (16-bit) instance.
+#adc = Adafruit_ADS1x15.ADS1115()
+# Or create an ADS1015 ADC (12-bit) instance.
+adc = Adafruit_ADS1x15.ADS1015()
+# Note you can change the I2C address from its default (0x48), and/or
+the I2C
+# bus by passing in these optional parameters:
+#adc = Adafruit_ADS1x15.ADS1015(address=0x49, busnum=1)
+# Choose a gain of 1 for reading voltages from 0 to 4.09V.
+# Or pick a different gain to change the range of voltages that are read:
+# - 2/3 = +/-6.144V
+# - 1 = +/-4.096V
+# - 2 = +/-2.048V
+# - 4 = +/-1.024V
+# - 8 = +/-0.512V
+# - 16 = +/-0.256V
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+21
+
+# See table 3 in the ADS1015/ADS1115 datasheet for more info on
+gain.
+GAIN = 2
+print('Reading ADS1x15 values, press Ctrl-C to quit...')
+# Print nice channel column headers.
+print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
+print('-' * 37)
+# Main loop.
+while True:
+# Read all the ADC channel values in a list.
+values = [0]*4
+for i in range(4):
+# Read the specified ADC channel using the previously set gain
+value.
+values[i] = adc.read_adc(i, gain=GAIN)
+# Note you can also pass in an optional data_rate parameter that
+controls
+# the ADC conversion time (in samples/second). Each chip has a
+different
+# set of allowed data rate values, see datasheet Table 9 config register
+# DR bit values.
+#values[i] = adc.read_adc(i, gain=GAIN, data_rate=128)
+# Each value will be a 12 or 16 bit signed integer value depending on the
+# ADC (ADS1015 = 12-bit, ADS1115 = 16-bit).
+# Print the ADC values.
+print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+22
+
+# Pause for half a second.
+time.sleep(0.5)
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+23
+
+PRACTICAL NO :- 8
+Aim :- Interfacing Raspberry Pi with RFID.
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+24
+
+WAP to Read RFID Tag data
+import SimpleMFRC522
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+reader = SimpleMFRC522.SimpleMFRC522()
+try:
+id,text=reader.read()
+print(id)
+print(text)
+finally:
+GPIO.cleanup()
+
+WAP to Write data into RFID Tag
+import SimpleMFRC522
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+reader = SimpleMFRC522.SimpleMFRC522()
+try:
+text=raw_input('New data:')
+print("Now place your Tag to Write")
+reader.write(text)
+print("Written")
+finally:
+GPIO.cleanup()
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+25
+
+PRACTICAL NO :- 9
+Aim :- Setting up Wireless Access Point using Raspberry Pi
+from bottle import route, run
+import RPi.GPIO as GPIO
+# change ip addrss of pi use ifconfig
+host = '192.168.0.101'
+GPIO.setmode(GPIO.BCM)
+led_pins = [20, 21]
+led_states = [0, 0]
+switch_pin = 19
+GPIO.setup(led_pins[0], GPIO.OUT)
+GPIO.setup(led_pins[1], GPIO.OUT)
+GPIO.setup(switch_pin, GPIO.IN )
+def switch_status():
+state = GPIO.input(switch_pin)
+if state:
+return 'Up'
+else:
+return 'Down'
+def html_for_led(led):
+l = str(led)
+result = " <input type='button' onClick='changed(" + l + ")' value='LED "
++ l + "'/>"
+return result
+def update_leds():
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+26
+
+for i, value in enumerate(led_states):
+GPIO.output(led_pins[i], value)
+@route('/')
+@route('/<led>')
+def index(led="n"):
+print(led)
+if led != "n":
+led_num = int(led)
+led_states[led_num] = not led_states[led_num]
+update_leds()
+response = "<script>"
+response += "function changed(led)"
+response += "{"
+response += " window.location.href='/' + led"
+response += "}"
+response += "</script>"
+response += '<h1>GPIO Control</h1>'
+response += '<h2>FIRST KEY-Button Status=' + switch_status() +
+'</h2>'
+response += '<h2>LEDs</h2>'
+response += html_for_led(0)
+response += html_for_led(1)
+return response
+run(host=host, port=80)
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+27
+
+PRACTICAL NO :- 10
+Aim :- Raspberry Pi GPS Module
+
+RUN
+$ minicom –b 9600 –o –D /dev/ttyUSB0
+Observe Gps Values
+
+T.Y.B.Sc. I.T.
+
+|
+
+Internet of Things
+
+28
+
+
